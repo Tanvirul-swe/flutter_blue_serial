@@ -1,0 +1,5 @@
+{
+    "java.compile.nullAnalysis.mode": "automatic",
+    "cmake.sourceDirectory": "/home/tanvir/StudioProjects/flutter_blue_serial/example/linux",
+    "java.configuration.updateBuildConfiguration": "automatic"
+}
