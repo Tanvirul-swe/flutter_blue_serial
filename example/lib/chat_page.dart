@@ -67,7 +67,7 @@ class _ChatPage extends State<ChatPage> {
       });
     }).catchError((error) {
       debugPrint('Cannot connect, exception occured');
-      debugPrint(error);
+      debugPrint(error.toString());
     });
   }
 
@@ -231,7 +231,7 @@ class _ChatPage extends State<ChatPage> {
               curve: Curves.easeOut);
         });
       } catch (e) {
-        // Ignore error, but notify state
+        debugPrint("Error: ${e.toString()}");
         setState(() {});
       }
     }
