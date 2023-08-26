@@ -26,6 +26,7 @@ class _DeviceWithAvailability {
   _DeviceAvailability availability;
   int? rssi;
 
+
   _DeviceWithAvailability(this.device, this.availability, [this.rssi]);
 }
 
