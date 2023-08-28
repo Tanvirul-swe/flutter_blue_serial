@@ -9,7 +9,7 @@ class BluetoothDevice {
   final String address;
 
   /// Type of the device (Bluetooth standard type).
-  final BluetoothDeviceType type;
+  final BluetoothType type;
 
   /// Class of the device.
   //final BluetoothClass bluetoothClass // @TODO . !BluetoothClass!
@@ -27,13 +27,17 @@ class BluetoothDevice {
   /// Tells whether the device is bonded (ready to secure connect).
   bool get isBonded => bondState.isBonded;
 
+  // Bluetooth Device Type Constants (from Android API)
+  final BluetoothDeviceType deviceType;
+
   /// Construct `BluetoothDevice` with given values.
   const BluetoothDevice({
     this.name,
     required this.address,
-    this.type = BluetoothDeviceType.unknown,
+    this.type = BluetoothType.unknown,
     this.isConnected = false,
     this.bondState = BluetoothBondState.unknown,
+    this.deviceType = BluetoothDeviceType.unknown,
   });
 
   /// Creates `BluetoothDevice` from map.
@@ -44,7 +48,10 @@ class BluetoothDevice {
       name: map["name"],
       address: map["address"]!,
       type: map["type"] != null
-          ? BluetoothDeviceType.fromUnderlyingValue(map["type"])
+          ? BluetoothType.fromUnderlyingValue(map["type"])
+          : BluetoothType.unknown,
+      deviceType: map["deviceType"] != null
+          ? BluetoothDeviceType.fromUnderlyingValue(map["deviceType"])
           : BluetoothDeviceType.unknown,
       isConnected: map["isConnected"] ?? false,
       bondState: map["bondState"] != null
@@ -60,6 +67,7 @@ class BluetoothDevice {
         "type": type.toUnderlyingValue(),
         "isConnected": isConnected,
         "bondState": bondState.toUnderlyingValue(),
+        "deviceType": deviceType.toUnderlyingValue(),
       };
 
   /// Compares for equality of this and other `BluetoothDevice`.
