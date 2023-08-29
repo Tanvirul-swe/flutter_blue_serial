@@ -38,7 +38,7 @@ class BluetoothConnection {
 
   BluetoothConnection._consumeConnectionID(int? id)
       : _readChannel =
-            EventChannel('${FlutterBluetoothSerial.namespace}/read/$id') {
+            EventChannel('${FlutterBlueSerial.namespace}/read/$id') {
     _readStreamController = StreamController<Uint8List>();
 
     _readStreamSubscription =
@@ -55,7 +55,7 @@ class BluetoothConnection {
   /// Returns connection to given address.
   static Future<BluetoothConnection> toAddress(String? address) async {
     // Sorry for pseudo-factory, but `factory` keyword disallows `Future`.
-    return BluetoothConnection._consumeConnectionID(await FlutterBluetoothSerial
+    return BluetoothConnection._consumeConnectionID(await FlutterBlueSerial
         ._methodChannel
         .invokeMethod('connect', {"address": address}));
   }
@@ -136,7 +136,7 @@ class BluetoothStreamSink<Uint8List> implements StreamSink<Uint8List> {
         throw StateError("Not connected!");
       }
 
-      await FlutterBluetoothSerial._methodChannel
+      await FlutterBlueSerial._methodChannel
           .invokeMethod('write', {'id': _id, 'bytes': data});
     }).catchError((e) {
       this.exception = e;

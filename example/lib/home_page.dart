@@ -38,7 +38,7 @@ class _HomePage extends State<HomePage> {
        if(value){
 
          // Get current state
-         FlutterBluetoothSerial.instance.state.then((state) {
+         FlutterBlueSerial.instance.state.then((state) {
            debugPrint("State: $state");
            setState(() {
              _bluetoothState = state;
@@ -47,28 +47,28 @@ class _HomePage extends State<HomePage> {
 
          Future.doWhile(() async {
            // Wait if adapter not enabled
-           if ((await FlutterBluetoothSerial.instance.isEnabled) ?? false) {
+           if ((await FlutterBlueSerial.instance.isEnabled) ?? false) {
              return false;
            }
            await Future.delayed(const Duration(milliseconds: 0xDD));
            return true;
          }).then((_) {
            // Update the address field
-           FlutterBluetoothSerial.instance.address.then((address) {
+           FlutterBlueSerial.instance.address.then((address) {
              setState(() {
                _address = address!;
              });
            });
          });
 
-         FlutterBluetoothSerial.instance.name.then((name) {
+         FlutterBlueSerial.instance.name.then((name) {
            setState(() {
              _name = name!;
            });
          });
 
          // Listen for further state changes
-         FlutterBluetoothSerial.instance
+         FlutterBlueSerial.instance
              .onStateChanged()
              .listen((BluetoothState state) {
            setState(() {
@@ -90,7 +90,7 @@ class _HomePage extends State<HomePage> {
 
   @override
   void dispose() {
-    FlutterBluetoothSerial.instance.setPairingRequestHandler(null);
+    FlutterBlueSerial.instance.setPairingRequestHandler(null);
     _collectingTask?.dispose();
     _discoverableTimeoutTimer?.cancel();
     super.dispose();
@@ -117,9 +117,9 @@ class _HomePage extends State<HomePage> {
                 // async lambda seems to not working
 
                 if (value) {
-                      await FlutterBluetoothSerial.instance.requestEnable();
+                      await FlutterBlueSerial.instance.requestEnable();
                 } else {
-                      await FlutterBluetoothSerial.instance.requestDisable();
+                      await FlutterBlueSerial.instance.requestDisable();
                 }
               }
 
@@ -134,7 +134,7 @@ class _HomePage extends State<HomePage> {
             trailing: ElevatedButton(
               child: const Text('Settings'),
               onPressed: () {
-                FlutterBluetoothSerial.instance.openSettings();
+                FlutterBlueSerial.instance.openSettings();
               },
             ),
           ),
@@ -167,7 +167,7 @@ class _HomePage extends State<HomePage> {
                   icon: const Icon(Icons.refresh),
                   onPressed: () async {
                     debugPrint('Discoverable requested');
-                    final int timeout = (await FlutterBluetoothSerial.instance
+                    final int timeout = (await FlutterBlueSerial.instance
                         .requestDiscoverable(60))!;
                     if (timeout < 0) {
                       debugPrint('Discoverable mode denied');
@@ -182,7 +182,7 @@ class _HomePage extends State<HomePage> {
                           const Duration(seconds: 1), (Timer timer) {
                         setState(() {
                           if (_discoverableTimeoutSecondsLeft < 0) {
-                            FlutterBluetoothSerial.instance.isDiscoverable
+                            FlutterBlueSerial.instance.isDiscoverable
                                 .then((isDiscoverable) {
                               if (isDiscoverable ?? false) {
                                 debugPrint(
@@ -214,16 +214,16 @@ class _HomePage extends State<HomePage> {
                 _autoAcceptPairingRequests = value;
               });
               if (value) {
-                FlutterBluetoothSerial.instance.setPairingRequestHandler(
+                FlutterBlueSerial.instance.setPairingRequestHandler(
                     (BluetoothPairingRequest request) {
                   debugPrint("Trying to auto-pair with Pin 1234");
-                  if (request.pairingVariant == PairingVariant.Pin) {
+                  if (request.pairingType == PairingType.Pin) {
                     return Future.value("1234");
                   }
                   return Future.value(null);
                 });
               } else {
-                FlutterBluetoothSerial.instance.setPairingRequestHandler(null);
+                FlutterBlueSerial.instance.setPairingRequestHandler(null);
               }
             },
           ),

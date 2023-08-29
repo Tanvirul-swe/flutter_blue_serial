@@ -35,7 +35,7 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
       List<_DeviceWithAvailability>.empty(growable: true);
 
   // Availability
-  StreamSubscription<BluetoothDiscoveryResult>? _discoveryStreamSubscription;
+  StreamSubscription<BluetoothScanResult>? _discoveryStreamSubscription;
   bool _isDiscovering = false;
 
   _SelectBondedDevicePage();
@@ -51,7 +51,7 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
     }
 
     // Setup a list of the bonded devices
-    FlutterBluetoothSerial.instance
+    FlutterBlueSerial.instance
         .getBondedDevices()
         .then((List<BluetoothDevice> bondedDevices) {
       setState(() {
@@ -79,7 +79,7 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
 
   void _startDiscovery() {
     _discoveryStreamSubscription =
-        FlutterBluetoothSerial.instance.startDiscovery().listen((r) {
+        FlutterBlueSerial.instance.startDiscovery().listen((r) {
       setState(() {
         Iterator i = devices.iterator;
         while (i.moveNext()) {

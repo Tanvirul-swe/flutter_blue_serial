@@ -1,6 +1,6 @@
+import 'package:flutter_blue_serial/src/flutter_blue_serial_method_channel.dart';
+import 'package:flutter_blue_serial/src/flutter_blue_serial_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_blue_serial/flutter_blue_serial_platform_interface.dart';
-import 'package:flutter_blue_serial/flutter_blue_serial_method_channel.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 
 class MockFlutterBlueSerialPlatform

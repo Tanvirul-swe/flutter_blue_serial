@@ -1,16 +1,16 @@
 part of flutter_blue_serial;
-class FlutterBluetoothSerial {
+class FlutterBlueSerial {
   // Plugin
   static const String namespace = 'flutter_bluetooth_serial';
 
-  static final FlutterBluetoothSerial _instance = FlutterBluetoothSerial._();
+  static final FlutterBlueSerial _instance = FlutterBlueSerial._();
 
-  static FlutterBluetoothSerial get instance => _instance;
+  static FlutterBlueSerial get instance => _instance;
 
   static const MethodChannel _methodChannel =
       MethodChannel('$namespace/methods');
 
-  FlutterBluetoothSerial._() {
+  FlutterBlueSerial._() {
     _methodChannel.setMethodCallHandler((MethodCall call) async {
       switch (call.method) {
         case 'handlePairingRequest':
@@ -116,8 +116,8 @@ class FlutterBluetoothSerial {
           setPairingRequestHandler(null);
         });
         if (pin != null) {
-          switch (request.pairingVariant) {
-            case PairingVariant.Pin:
+          switch (request.pairingType) {
+            case PairingType.Pin:
               return pin;
             default:
               // Other pairing variant requested, ignoring pin
@@ -125,9 +125,9 @@ class FlutterBluetoothSerial {
           }
         }
         if (passkeyConfirm != null) {
-          switch (request.pairingVariant) {
-            case PairingVariant.Consent:
-            case PairingVariant.PasskeyConfirmation:
+          switch (request.pairingType) {
+            case PairingType.Consent:
+            case PairingType.PasskeyConfirmation:
               return passkeyConfirm;
             default:
               // Other pairing variant requested, ignoring confirming
@@ -156,7 +156,7 @@ class FlutterBluetoothSerial {
   /// Allows listening and responsing for incoming pairing requests.
   ///
   /// Various variants of pairing requests might require different returns:
-  /// * `PairingVariant.Pin` or `PairingVariant.Pin16Digits`
+  /// * `PairingType.Pin` or `PairingType.Pin16Digits`
   /// (prompt to enter a pin)
   ///   - return string containing the pin for pairing
   ///   - return `false` to reject.
@@ -164,7 +164,7 @@ class FlutterBluetoothSerial {
   /// (user needs to confirm displayed passkey, no rewriting necessary)
   ///   - return `true` to accept, `false` to reject.
   ///   - there is `passkey` parameter available.
-  /// * `PairingVariant.Consent`
+  /// * `PairingType.Consent`
   /// (just prompt with device name to accept without any code or passkey)
   ///   - return `true` to accept, `false` to reject.
   ///
@@ -204,8 +204,8 @@ class FlutterBluetoothSerial {
   Future<bool?> get isDiscovering async =>
       await _methodChannel.invokeMethod('isDiscovering');
 
-  /// Starts discovery and provides stream of `BluetoothDiscoveryResult`s.
-  Stream<BluetoothDiscoveryResult> startDiscovery() async* {
+  /// Starts discovery and provides stream of `BluetoothScanResult`s.
+  Stream<BluetoothScanResult> startDiscovery() async* {
     late StreamSubscription subscription;
     StreamController controller;
 
@@ -225,7 +225,7 @@ class FlutterBluetoothSerial {
         );
 
     yield* controller.stream
-        .map((map) => BluetoothDiscoveryResult.fromMap(map));
+        .map((map) => BluetoothScanResult.fromMap(map));
   }
 
   /// Cancels the discovery

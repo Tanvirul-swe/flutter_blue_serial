@@ -16,9 +16,9 @@ class DiscoveryPage extends StatefulWidget {
 }
 
 class _DiscoveryPage extends State<DiscoveryPage> {
-  StreamSubscription<BluetoothDiscoveryResult>? _streamSubscription;
-  List<BluetoothDiscoveryResult> results =
-      List<BluetoothDiscoveryResult>.empty(growable: true);
+  StreamSubscription<BluetoothScanResult>? _streamSubscription;
+  List<BluetoothScanResult> results =
+      List<BluetoothScanResult>.empty(growable: true);
   bool isDiscovering = false;
 
   _DiscoveryPage();
@@ -44,7 +44,7 @@ class _DiscoveryPage extends State<DiscoveryPage> {
 
   void _startDiscovery() {
     _streamSubscription =
-        FlutterBluetoothSerial.instance.startDiscovery().listen((r) {
+        FlutterBlueSerial.instance.startDiscovery().listen((r) {
       setState(() {
         final existingIndex = results.indexWhere(
             (element) => element.device.address == r.device.address);
@@ -99,7 +99,7 @@ class _DiscoveryPage extends State<DiscoveryPage> {
       body: ListView.builder(
         itemCount: results.length,
         itemBuilder: (BuildContext context, index) {
-          BluetoothDiscoveryResult result = results[index];
+          BluetoothScanResult result = results[index];
           final device = result.device;
           final address = device.address;
           return BluetoothDeviceListEntry(
@@ -113,18 +113,18 @@ class _DiscoveryPage extends State<DiscoveryPage> {
                 bool bonded = false;
                 if (device.isBonded) {
                   debugPrint('Unbonding from ${device.address}...');
-                  await FlutterBluetoothSerial.instance
+                  await FlutterBlueSerial.instance
                       .removeDeviceBondWithAddress(address);
                   debugPrint('Unbonding from ${device.address} has succed');
                 } else {
                   debugPrint('Bonding with ${device.address}...');
-                  bonded = (await FlutterBluetoothSerial.instance
+                  bonded = (await FlutterBlueSerial.instance
                       .bondDeviceAtAddress(address))!;
                   debugPrint(
                       'Bonding with ${device.address} has ${bonded ? 'succed' : 'failed'}.');
                 }
                 setState(() {
-                  results[results.indexOf(result)] = BluetoothDiscoveryResult(
+                  results[results.indexOf(result)] = BluetoothScanResult(
                       device: BluetoothDevice(
                         name: device.name ?? '',
                         address: address,

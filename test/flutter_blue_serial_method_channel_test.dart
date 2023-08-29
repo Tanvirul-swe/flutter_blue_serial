@@ -1,6 +1,6 @@
 import 'package:flutter/services.dart';
+import 'package:flutter_blue_serial/src/flutter_blue_serial_method_channel.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_blue_serial/flutter_blue_serial_method_channel.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
