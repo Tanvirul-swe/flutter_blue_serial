@@ -45,10 +45,10 @@ class FlutterBlueSerial {
   /// Allows monitoring the Bluetooth adapter state changes.
   Stream<BluetoothState> onStateChanged() => _stateChannel
       .receiveBroadcastStream()
-      .map((data) => BluetoothState.fromUnderlyingValue(data));
+      .map((data) => BluetoothState.fromValue(data));
 
   /// State of the Bluetooth adapter.
-  Future<BluetoothState> get state async => BluetoothState.fromUnderlyingValue(
+  Future<BluetoothState> get state async => BluetoothState.fromValue(
       await _methodChannel.invokeMethod('getState'));
 
   /// Returns the hardware address of the local Bluetooth adapter.
@@ -92,7 +92,7 @@ class FlutterBlueSerial {
   /* Discovering and bonding devices */
   /// Checks bond state for given address (might be from system cache).
   Future<BluetoothBondState> getBondStateForAddress(String address) async {
-    return BluetoothBondState.fromUnderlyingValue(await _methodChannel
+    return BluetoothBondState.fromValue(await _methodChannel
         .invokeMethod('getDeviceBondState', {"address": address}));
   }
 
@@ -205,7 +205,7 @@ class FlutterBlueSerial {
       await _methodChannel.invokeMethod('isDiscovering');
 
   /// Starts discovery and provides stream of `BluetoothScanResult`s.
-  Stream<BluetoothScanResult> startDiscovery() async* {
+  Stream<BluetoothScanResult> startScaning() async* {
     late StreamSubscription subscription;
     StreamController controller;
 

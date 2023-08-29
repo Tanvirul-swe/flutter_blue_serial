@@ -1,11 +1,12 @@
 part of flutter_blue_serial;
 
 class BluetoothType {
-  final int underlyingValue;
-  final String stringValue;
+// HERE Value hold the underlying value.
+  final int value;
+  final String name;
 
   const BluetoothType.fromString(String string)
-      : underlyingValue = (string == 'unknown'
+      : value = (string == 'unknown'
                 ? 0
                 : string == 'classic'
                     ? 1
@@ -15,7 +16,7 @@ class BluetoothType {
                             ? 3
                             : -2 // Unknown, if not found valid
             ),
-        stringValue = ((string == 'unknown' ||
+        name = ((string == 'unknown' ||
                     string == 'classic' ||
                     string == 'le' ||
                     string == 'dual' //
@@ -24,12 +25,12 @@ class BluetoothType {
                 : 'unknown' // Unknown, if not found valid
             );
 
-  const BluetoothType.fromUnderlyingValue(int value)
-      : underlyingValue = ((value >= 0 && value <= 3)
+  const BluetoothType.fromvalue(int value)
+      : value = ((value >= 0 && value <= 3)
                 ? value
                 : 0 // Unknown, if not found valid
             ),
-        stringValue = (value == 0
+        name = (value == 0
                 ? 'unknown'
                 : value == 1
                     ? 'classic'
@@ -41,23 +42,23 @@ class BluetoothType {
             );
 
   @override
-  String toString() => 'BluetoothType.$stringValue';
+  String toString() => 'BluetoothType.$name';
 
-  int toUnderlyingValue() => underlyingValue;
+  int toValue() => value;
 
-  static const unknown = BluetoothType.fromUnderlyingValue(0);
-  static const classic = BluetoothType.fromUnderlyingValue(1);
-  static const le = BluetoothType.fromUnderlyingValue(2);
-  static const dual = BluetoothType.fromUnderlyingValue(3);
+  static const unknown = BluetoothType.fromvalue(0);
+  static const classic = BluetoothType.fromvalue(1);
+  static const le = BluetoothType.fromvalue(2);
+  static const dual = BluetoothType.fromvalue(3);
 
   @override
   operator ==(Object other) {
     return other is BluetoothType &&
-        other.underlyingValue == underlyingValue;
+        other.value == value;
   }
 
   @override
-  int get hashCode => underlyingValue.hashCode;
+  int get hashCode => value.hashCode;
 }
 
 

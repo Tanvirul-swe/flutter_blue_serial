@@ -1,11 +1,12 @@
 part of flutter_blue_serial;
 
 class BluetoothBondState {
-  final int underlyingValue;
-  final String stringValue;
+   // Here Value hold the underlying value.
+  final int value;
+  final String name;
 
   const BluetoothBondState.fromString(String string)
-      : underlyingValue = (string == 'none'
+      : value = (string == 'none'
                 ? 10
                 : string == 'bonding'
                     ? 11
@@ -13,19 +14,19 @@ class BluetoothBondState {
                         ? 12
                         : -2 // Unknown, if not found valid
             ),
-        stringValue =
+        name =
             ((string == 'none' || string == 'bonding' || string == 'bonded' //
                 )
                 ? string
                 : 'unknown' // Unknown, if not found valid
             );
 
-  const BluetoothBondState.fromUnderlyingValue(int value)
-      : underlyingValue = ((value >= 10 && value <= 12)
+  const BluetoothBondState.fromValue(int value)
+      : value = ((value >= 10 && value <= 12)
                 ? value
                 : 0 // Unknown, if not found valid
             ),
-        stringValue = (value == 10
+        name = (value == 10
                 ? 'none'
                 : value == 11
                     ? 'bonding'
@@ -35,23 +36,23 @@ class BluetoothBondState {
             );
 
   @override
-  String toString() => 'BluetoothBondState.$stringValue';
+  String toString() => 'BluetoothBondState.$name';
 
-  int toUnderlyingValue() => underlyingValue;
+  int toValue() => value;
 
-  static const unknown = BluetoothBondState.fromUnderlyingValue(0);
-  static const none = BluetoothBondState.fromUnderlyingValue(10);
-  static const bonding = BluetoothBondState.fromUnderlyingValue(11);
-  static const bonded = BluetoothBondState.fromUnderlyingValue(12);
+  static const unknown = BluetoothBondState.fromValue(0);
+  static const none = BluetoothBondState.fromValue(10);
+  static const bonding = BluetoothBondState.fromValue(11);
+  static const bonded = BluetoothBondState.fromValue(12);
 
   @override
   operator ==(Object other) {
     return other is BluetoothBondState &&
-        other.underlyingValue == underlyingValue;
+        other.value == value;
   }
 
   @override
-  int get hashCode => underlyingValue.hashCode;
+  int get hashCode => value.hashCode;
 
   bool get isBonded => this == bonded;
 }

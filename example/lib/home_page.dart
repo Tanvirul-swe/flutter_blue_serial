@@ -8,7 +8,7 @@ import 'package:scoped_model/scoped_model.dart';
 import 'background_collected_page.dart';
 import 'background_collection_task.dart';
 import 'chat_page.dart';
-import 'discovery_page.dart';
+import 'scan_page.dart';
 import 'select_bonded_device_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -34,58 +34,54 @@ class _HomePage extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-     PermissionHelper.requestPermission().then((value) {
-       if(value){
+    PermissionHelper.requestPermission().then((value) {
+      if (value) {
+        // Get current state
+        FlutterBlueSerial.instance.state.then((state) {
+          debugPrint("State: $state");
+          setState(() {
+            _bluetoothState = state;
+          });
+        });
 
-         // Get current state
-         FlutterBlueSerial.instance.state.then((state) {
-           debugPrint("State: $state");
-           setState(() {
-             _bluetoothState = state;
-           });
-         });
+        Future.doWhile(() async {
+          // Wait if adapter not enabled
+          if ((await FlutterBlueSerial.instance.isEnabled) ?? false) {
+            return false;
+          }
+          await Future.delayed(const Duration(milliseconds: 0xDD));
+          return true;
+        }).then((_) {
+          // Update the address field
+          FlutterBlueSerial.instance.address.then((address) {
+            setState(() {
+              _address = address!;
+            });
+          });
+        });
 
-         Future.doWhile(() async {
-           // Wait if adapter not enabled
-           if ((await FlutterBlueSerial.instance.isEnabled) ?? false) {
-             return false;
-           }
-           await Future.delayed(const Duration(milliseconds: 0xDD));
-           return true;
-         }).then((_) {
-           // Update the address field
-           FlutterBlueSerial.instance.address.then((address) {
-             setState(() {
-               _address = address!;
-             });
-           });
-         });
+        FlutterBlueSerial.instance.name.then((name) {
+          setState(() {
+            _name = name!;
+          });
+        });
 
-         FlutterBlueSerial.instance.name.then((name) {
-           setState(() {
-             _name = name!;
-           });
-         });
+        // Listen for further state changes
+        FlutterBlueSerial.instance
+            .onStateChanged()
+            .listen((BluetoothState state) {
+          setState(() {
+            _bluetoothState = state;
 
-         // Listen for further state changes
-         FlutterBlueSerial.instance
-             .onStateChanged()
-             .listen((BluetoothState state) {
-           setState(() {
-             _bluetoothState = state;
-
-             // Discoverable mode is disabled when Bluetooth gets disabled
-             _discoverableTimeoutTimer = null;
-             _discoverableTimeoutSecondsLeft = 0;
-           });
-         });
-       }
-       else{
-         debugPrint("Permission denied");
-       }
-
-
-     });
+            // Discoverable mode is disabled when Bluetooth gets disabled
+            _discoverableTimeoutTimer = null;
+            _discoverableTimeoutSecondsLeft = 0;
+          });
+        });
+      } else {
+        debugPrint("Permission denied");
+      }
+    });
   }
 
   @override
@@ -111,15 +107,15 @@ class _HomePage extends State<HomePage> {
             value: _bluetoothState.isEnabled,
             onChanged: (bool value) {
               // Do the request and update with the true value then
-                debugPrint("Switch Value: $value");
+              debugPrint("Switch Value: $value");
 
               future() async {
                 // async lambda seems to not working
 
                 if (value) {
-                      await FlutterBlueSerial.instance.requestEnable();
+                  await FlutterBlueSerial.instance.requestEnable();
                 } else {
-                      await FlutterBlueSerial.instance.requestDisable();
+                  await FlutterBlueSerial.instance.requestDisable();
                 }
               }
 
@@ -235,7 +231,7 @@ class _HomePage extends State<HomePage> {
                       await Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (context) {
-                        return const DiscoveryPage();
+                        return const ScanPage();
                       },
                     ),
                   );

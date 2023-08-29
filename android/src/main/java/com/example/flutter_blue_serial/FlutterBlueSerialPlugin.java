@@ -1,6 +1,8 @@
 package com.example.flutter_blue_serial;
 
 
+import static androidx.core.app.ActivityCompat.startActivityForResult;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -583,7 +585,7 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                     if (!bluetoothAdapter.isEnabled()) {
                         pendingResultForActivityResult = result;
                         Intent intent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                        ActivityCompat.startActivityForResult(activity, intent, REQUEST_ENABLE_BLUETOOTH, null);
+                        startActivityForResult(activity, intent, REQUEST_ENABLE_BLUETOOTH, null);
                     } else {
                         result.success(true);
                     }
@@ -974,7 +976,7 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                     }
 
                     pendingResultForActivityResult = result;
-                    ActivityCompat.startActivityForResult(activity, intent, REQUEST_DISCOVERABLE_BLUETOOTH, null);
+                    startActivityForResult(activity, intent, REQUEST_DISCOVERABLE_BLUETOOTH, null);
                     break;
                 }
 

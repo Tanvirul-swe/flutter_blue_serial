@@ -3,11 +3,11 @@
 part of flutter_blue_serial;
 
 class BluetoothState {
-  final int underlyingValue;
-  final String stringValue;
+  final int value;
+  final String name;
 
   const BluetoothState.fromString(String string)
-      : underlyingValue = (string == 'STATE_OFF'
+      : value = (string == 'STATE_OFF'
                 ? 10
                 : string == 'STATE_TURNING_ON'
                     ? 11
@@ -28,7 +28,7 @@ class BluetoothState {
                                             ? -1
                                             : -2 // Unknown, if not found valid
             ),
-        stringValue = ((string == 'STATE_OFF' ||
+        name = ((string == 'STATE_OFF' ||
                     string == 'STATE_TURNING_ON' ||
                     string == 'STATE_ON' ||
                     string == 'STATE_TURNING_OFF' ||
@@ -42,12 +42,12 @@ class BluetoothState {
                 : 'UNKNOWN' // Unknown, if not found valid
             );
 
-  const BluetoothState.fromUnderlyingValue(int value)
-      : underlyingValue = (((value >= 10 && value <= 16) || value == -1)
+  const BluetoothState.fromValue(int value)
+      : value = (((value >= 10 && value <= 16) || value == -1)
                 ? value
                 : -2 // Unknown, if not found valid
             ),
-        stringValue = (value == 10
+        name = (value == 10
                 ? 'STATE_OFF'
                 : value == 11
                     ? 'STATE_TURNING_ON'
@@ -70,31 +70,31 @@ class BluetoothState {
             );
 
   @override
-  String toString() => 'BluetoothState.$stringValue';
+  String toString() => 'BluetoothState.$name';
 
-  int toUnderlyingValue() => underlyingValue;
+  int tovalue() => value;
 
-  static const STATE_OFF = BluetoothState.fromUnderlyingValue(10);
-  static const STATE_TURNING_ON = BluetoothState.fromUnderlyingValue(11);
-  static const STATE_ON = BluetoothState.fromUnderlyingValue(12);
-  static const STATE_TURNING_OFF = BluetoothState.fromUnderlyingValue(13);
+  static const STATE_OFF = BluetoothState.fromValue(10);
+  static const STATE_TURNING_ON = BluetoothState.fromValue(11);
+  static const STATE_ON = BluetoothState.fromValue(12);
+  static const STATE_TURNING_OFF = BluetoothState.fromValue(13);
 
   //atic const STATE_BLE_OFF = BluetoothState.STATE_OFF; // Just for symetry in code :F
-  static const STATE_BLE_TURNING_ON = BluetoothState.fromUnderlyingValue(14);
-  static const STATE_BLE_ON = BluetoothState.fromUnderlyingValue(15);
-  static const STATE_BLE_TURNING_OFF = BluetoothState.fromUnderlyingValue(16);
+  static const STATE_BLE_TURNING_ON = BluetoothState.fromValue(14);
+  static const STATE_BLE_ON = BluetoothState.fromValue(15);
+  static const STATE_BLE_TURNING_OFF = BluetoothState.fromValue(16);
 
-  static const ERROR = BluetoothState.fromUnderlyingValue(-1);
-  static const UNKNOWN = BluetoothState.fromUnderlyingValue(-2);
+  static const ERROR = BluetoothState.fromValue(-1);
+  static const UNKNOWN = BluetoothState.fromValue(-2);
 
   @override
   operator ==(Object other) {
     return other is BluetoothState &&
-        other.underlyingValue == underlyingValue;
+        other.value == value;
   }
 
   @override
-  int get hashCode => underlyingValue.hashCode;
+  int get hashCode => value.hashCode;
 
   bool get isEnabled => this == STATE_ON;
 }

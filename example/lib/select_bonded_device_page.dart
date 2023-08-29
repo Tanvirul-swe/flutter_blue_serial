@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_serial/flutter_bluetooth_serial.dart';
 
-import 'bluetooth_device_list_entry.dart';
 
 class SelectBondedDevicePage extends StatefulWidget {
   /// If true, on page start there is performed discovery upon the bonded devices.
@@ -79,7 +78,7 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
 
   void _startDiscovery() {
     _discoveryStreamSubscription =
-        FlutterBlueSerial.instance.startDiscovery().listen((r) {
+        FlutterBlueSerial.instance.startScaning().listen((r) {
       setState(() {
         Iterator i = devices.iterator;
         while (i.moveNext()) {
@@ -109,16 +108,16 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
 
   @override
   Widget build(BuildContext context) {
-    List<BluetoothDeviceListEntry> list = devices
-        .map((device) => BluetoothDeviceListEntry(
-              device: device.device,
-              rssi: device.rssi,
-              enabled: device.availability == _DeviceAvailability.yes,
-              onTap: () {
-                Navigator.of(context).pop(device.device);
-              },
-            ))
-        .toList();
+    // List<BluetoothDeviceListEntry> list = devices
+    //     .map((device) => BluetoothDeviceListEntry(
+    //           device: device.device,
+    //           rssi: device.rssi,
+    //           enabled: device.availability == _DeviceAvailability.yes,
+    //           onTap: () {
+    //             Navigator.of(context).pop(device.device);
+    //           },
+    //         ))
+    //     .toList();
     return Scaffold(
       appBar: AppBar(
         title: const Text('Select device'),
@@ -140,7 +139,7 @@ class _SelectBondedDevicePage extends State<SelectBondedDevicePage> {
                 )
         ],
       ),
-      body: ListView(children: list),
+      body: ListView(children: []),
     );
   }
 }

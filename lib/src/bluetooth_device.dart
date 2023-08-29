@@ -48,14 +48,14 @@ class BluetoothDevice {
       name: map["name"],
       address: map["address"]!,
       type: map["type"] != null
-          ? BluetoothType.fromUnderlyingValue(map["type"])
+          ? BluetoothType.fromvalue(map["type"])
           : BluetoothType.unknown,
       deviceType: map["deviceType"] != null
-          ? BluetoothDeviceType.fromUnderlyingValue(map["deviceType"])
+          ? BluetoothDeviceType.fromValue(map["deviceType"])
           : BluetoothDeviceType.unknown,
       isConnected: map["isConnected"] ?? false,
       bondState: map["bondState"] != null
-          ? BluetoothBondState.fromUnderlyingValue(map["bondState"])
+          ? BluetoothBondState.fromValue(map["bondState"])
           : BluetoothBondState.unknown,
     );
   }
@@ -64,10 +64,10 @@ class BluetoothDevice {
   Map<String, dynamic> toMap() => {
         "name": name,
         "address": address,
-        "type": type.toUnderlyingValue(),
+        "type": type.toValue(),
         "isConnected": isConnected,
-        "bondState": bondState.toUnderlyingValue(),
-        "deviceType": deviceType.toUnderlyingValue(),
+        "bondState": bondState.toValue(),
+        "deviceType": deviceType.toValue(),
       };
 
   /// Compares for equality of this and other `BluetoothDevice`.

@@ -4,11 +4,12 @@ part of flutter_blue_serial;
 
 /// Enum-like class for all types of pairing variants.
 class PairingType {
-  final int underlyingValue;
+  // Here Value hold the underlying value.
+  final int value;
 
-  const PairingType._(this.underlyingValue);
+  const PairingType._(this.value);
 
-  factory PairingType.fromUnderlyingValue(int? value) {
+  factory PairingType.fromValue(int? value) {
     switch (value) {
       case 0:
         return PairingType.Pin;
@@ -30,11 +31,11 @@ class PairingType {
         return PairingType.Error;
     }
   }
-  int toUnderlyingValue() => underlyingValue;
+  int tovalue() => value;
 
   @override
   String toString() {
-    switch (underlyingValue) {
+    switch (value) {
       case 0:
         return 'PairingType.Pin';
       case 1:
@@ -67,11 +68,11 @@ class PairingType {
   static const Pin16Digits = PairingType._(7);
 
   // operator ==(Object other) {
-  //   return other is PairingType && other.underlyingValue == this.underlyingValue;
+  //   return other is PairingType && other.value == this.value;
   // }
 
   // @override
-  // int get hashCode => underlyingValue.hashCode;
+  // int get hashCode => value.hashCode;
 }
 
 /// Represents information about incoming pairing request
@@ -97,7 +98,7 @@ class BluetoothPairingRequest {
   factory BluetoothPairingRequest.fromMap(Map map) {
     return BluetoothPairingRequest(
       address: map['address'],
-      pairingType: PairingType.fromUnderlyingValue(map['variant']),
+      pairingType: PairingType.fromValue(map['variant']),
       passkey: map['passkey'],
     );
   }
