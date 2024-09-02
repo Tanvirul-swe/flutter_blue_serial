@@ -42,6 +42,7 @@ import io.flutter.plugin.common.EventChannel.StreamHandler;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
+import java.lang.reflect.Method;
 
 public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
     // Plugin
@@ -834,8 +835,10 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                     // Cancel ongoing bonding process if exists
                     if (bondStateBroadcastReceiver != null) {
                         try {
+                            System.out.println("Unregistering bondStateBroadcastReceiver");
                             activeContext.unregisterReceiver(bondStateBroadcastReceiver);
                         } catch (IllegalArgumentException e) {
+
                             // Receiver not registered, ignore
                         }
                         bondStateBroadcastReceiver = null;
