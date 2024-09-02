@@ -812,7 +812,7 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                     }
 
                     if (bondStateBroadcastReceiver != null) {
-                        activeContext.unregisterReceiver(this);
+                        activeContext.unregisterReceiver(bondStateBroadcastReceiver);
                         // result.error("bond_error", "another bonding process is ongoing from local device", null);
                         break;
                     }
