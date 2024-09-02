@@ -1,6 +1,5 @@
 package com.example.flutter_blue_serial;
 
-
 import static androidx.core.app.ActivityCompat.startActivityForResult;
 
 import android.Manifest;
@@ -54,7 +53,7 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
     // Permissions and request constants
     private static final int REQUEST_COARSE_LOCATION_PERMISSIONS = 1451;
     private static final int REQUEST_ENABLE_BLUETOOTH = 1337;
-    private  static final  int REQUEST_DISABLE_BLUETOOTH = 1338;
+    private static final int REQUEST_DISABLE_BLUETOOTH = 1338;
     private static final int REQUEST_DISCOVERABLE_BLUETOOTH = 2137;
 
     // General Bluetooth
@@ -73,10 +72,11 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
     private final BroadcastReceiver discoveryReceiver;
 
     // Connections
-    /// Contains all active connections. Maps ID of the connection with plugin data channels. 
+    /// Contains all active connections. Maps ID of the connection with plugin data
+    // channels.
     private final SparseArray<BluetoothConnectionWrapper> connections = new SparseArray<>(2);
 
-    /// Last ID given to any connection, used to avoid duplicate IDs 
+    /// Last ID given to any connection, used to avoid duplicate IDs
     private int lastConnectionId = 0;
     private Activity activity;
     private BinaryMessenger messenger;
@@ -108,7 +108,6 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
             }
         };
 
-
         // Pairing requests
         pairingRequestReceiver = new BroadcastReceiver() {
             @Override
@@ -116,12 +115,13 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                 // Ignore other actions
                 if (Objects.equals(intent.getAction(), BluetoothDevice.ACTION_PAIRING_REQUEST)) {
                     final BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                    final int pairingVariant = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_VARIANT, BluetoothDevice.ERROR);
+                    final int pairingVariant = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_VARIANT,
+                            BluetoothDevice.ERROR);
                     assert device != null;
                     Log.d(TAG, "Pairing request (variant " + pairingVariant + ") incoming from " + device.getAddress());
                     switch (pairingVariant) {
                         case BluetoothDevice.PAIRING_VARIANT_PIN:
-                            // Simplest method - 4 digit number
+                        // Simplest method - 4 digit number
                         {
                             final PendingResult broadcastResult = this.goAsync();
 
@@ -144,13 +144,14 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                                             Log.e(TAG, Objects.requireNonNull(ex.getMessage()));
                                             ex.printStackTrace();
                                             // @TODO , passing the error
-                                            //result.error("bond_error", "Setting passkey for pairing failed", exceptionToString(ex));
+                                            // result.error("bond_error", "Setting passkey for pairing failed",
+                                            // exceptionToString(ex));
                                         }
                                     } else {
                                         Log.d(TAG, "Manual pin pairing in progress");
-                                        //Intent intent = new Intent(BluetoothAdapter.ACTION_PAIRING_REQUEST);
-                                        //intent.putExtra(BluetoothDevice.EXTRA_DEVICE, device);
-                                        //intent.putExtra(BluetoothDevice.EXTRA_PAIRING_VARIANT, pairingVariant)
+                                        // Intent intent = new Intent(BluetoothAdapter.ACTION_PAIRING_REQUEST);
+                                        // intent.putExtra(BluetoothDevice.EXTRA_DEVICE, device);
+                                        // intent.putExtra(BluetoothDevice.EXTRA_PAIRING_VARIANT, pairingVariant)
                                         ActivityCompat.startActivity(activity, intent, null);
                                     }
                                     broadcastResult.finish();
@@ -169,17 +170,20 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                             break;
                         }
 
-                        // Note: `BluetoothDevice.PAIRING_VARIANT_PASSKEY` seems to be unsupported anyway... Probably is abandoned.
-                        // See https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/bluetooth/BluetoothDevice.java#1528
+                        // Note: `BluetoothDevice.PAIRING_VARIANT_PASSKEY` seems to be unsupported
+                        // anyway... Probably is abandoned.
+                        // See
+                        // https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/bluetooth/BluetoothDevice.java#1528
 
                         case BluetoothDevice.PAIRING_VARIANT_PASSKEY_CONFIRMATION:
                             // Displayed passkey on the other device should be the same as received here.
-                        case 3: //case BluetoothDevice.PAIRING_VARIANT_CONSENT: // @TODO , Symbol not found?
-                            // The simplest, but much less secure method - just yes or no, without any auth.
-                            // Consent type can use same code as passkey confirmation since passed passkey,
-                            // which is 0 or error at the moment, should not be used anyway by common code.
+                        case 3: // case BluetoothDevice.PAIRING_VARIANT_CONSENT: // @TODO , Symbol not found?
+                        // The simplest, but much less secure method - just yes or no, without any auth.
+                        // Consent type can use same code as passkey confirmation since passed passkey,
+                        // which is 0 or error at the moment, should not be used anyway by common code.
                         {
-                            final int pairingKey = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY, BluetoothDevice.ERROR);
+                            final int pairingKey = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY,
+                                    BluetoothDevice.ERROR);
 
                             Map<String, Object> arguments = new HashMap<>();
                             arguments.put("address", device.getAddress());
@@ -194,7 +198,8 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                                     if (handlerResult instanceof Boolean) {
                                         try {
                                             final boolean confirm = (Boolean) handlerResult;
-                                            Log.d(TAG, "Trying to set pairing confirmation to " + confirm + " (key: " + pairingKey + ")");
+                                            Log.d(TAG, "Trying to set pairing confirmation to " + confirm + " (key: "
+                                                    + pairingKey + ")");
                                             // @WARN `BLUETOOTH_PRIVILEGED` permission required, but might be
                                             // unavailable for third party apps on newer versions of Androids.
                                             device.setPairingConfirmation(confirm);
@@ -203,10 +208,12 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                                             Log.e(TAG, Objects.requireNonNull(ex.getMessage()));
                                             ex.printStackTrace();
                                             // @TODO , passing the error
-                                            //result.error("bond_error", "Auto-confirming pass key failed", exceptionToString(ex));
+                                            // result.error("bond_error", "Auto-confirming pass key failed",
+                                            // exceptionToString(ex));
                                         }
                                     } else {
-                                        Log.d(TAG, "Manual passkey confirmation pairing in progress (key: " + pairingKey + ")");
+                                        Log.d(TAG, "Manual passkey confirmation pairing in progress (key: " + pairingKey
+                                                + ")");
                                         ActivityCompat.startActivity(activity, intent, null);
                                     }
                                     broadcastResult.finish();
@@ -226,13 +233,16 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                             break;
                         }
 
-                        case 4: //case BluetoothDevice.PAIRING_VARIANT_DISPLAY_PASSKEY: // @TODO , Symbol not found?
+                        case 4: // case BluetoothDevice.PAIRING_VARIANT_DISPLAY_PASSKEY: // @TODO , Symbol not
+                                // found?
                             // This pairing method requires to enter the generated and displayed pairing key
                             // on the remote device. It looks like basic asymmetric cryptography was used.
-                        case 5: //case BluetoothDevice.PAIRING_VARIANT_DISPLAY_PIN: // @TODO , Symbol not found?
-                            // Same as previous, but for 4 digit pin.
+                        case 5: // case BluetoothDevice.PAIRING_VARIANT_DISPLAY_PIN: // @TODO , Symbol not
+                                // found?
+                        // Same as previous, but for 4 digit pin.
                         {
-                            final int pairingKey = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY, BluetoothDevice.ERROR);
+                            final int pairingKey = intent.getIntExtra(BluetoothDevice.EXTRA_PAIRING_KEY,
+                                    BluetoothDevice.ERROR);
 
                             Map<String, Object> arguments = new HashMap<>();
                             arguments.put("address", device.getAddress());
@@ -243,11 +253,15 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                             break;
                         }
 
-                        // Note: `BluetoothDevice.PAIRING_VARIANT_OOB_CONSENT` seems to be unsupported for now, at least at master branch of Android.
-                        // See https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/bluetooth/BluetoothDevice.java#1559
+                        // Note: `BluetoothDevice.PAIRING_VARIANT_OOB_CONSENT` seems to be unsupported
+                        // for now, at least at master branch of Android.
+                        // See
+                        // https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/bluetooth/BluetoothDevice.java#1559
 
-                        // Note: `BluetoothDevice.PAIRING_VARIANT_PIN_16_DIGITS ` seems to be unsupported for now, at least at master branch of Android.
-                        // See https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/bluetooth/BluetoothDevice.java#1559
+                        // Note: `BluetoothDevice.PAIRING_VARIANT_PIN_16_DIGITS ` seems to be
+                        // unsupported for now, at least at master branch of Android.
+                        // See
+                        // https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/bluetooth/BluetoothDevice.java#1559
 
                         default:
                             // Only log other pairing variants
@@ -314,11 +328,12 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
     @Override
     public void onAttachedToEngine(@NonNull FlutterPlugin.FlutterPluginBinding binding) {
         Log.v("FlutterBluetoothSerial", "Attached to engine");
-//        if (true) throw new RuntimeException("FlutterBluetoothSerial Attached to engine");
+        // if (true) throw new RuntimeException("FlutterBluetoothSerial Attached to
+        // engine");
         messenger = binding.getBinaryMessenger();
 
         methodChannel = new MethodChannel(messenger, PLUGIN_NAMESPACE + "/methods");
-        methodChannel.setMethodCallHandler( new FlutterBluetoothSerialMethodCallHandler() );
+        methodChannel.setMethodCallHandler(new FlutterBluetoothSerialMethodCallHandler());
 
         EventChannel stateChannel = new EventChannel(messenger, PLUGIN_NAMESPACE + "/state");
 
@@ -373,12 +388,14 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
 
     @Override
     public void onDetachedFromEngine(@NonNull FlutterPlugin.FlutterPluginBinding binding) {
-        if (methodChannel != null) methodChannel.setMethodCallHandler(null);
+        if (methodChannel != null)
+            methodChannel.setMethodCallHandler(null);
     }
 
     @Override
     public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
-//        if (true) throw new RuntimeException("FlutterBluetoothSerial Attached to activity");
+        // if (true) throw new RuntimeException("FlutterBluetoothSerial Attached to
+        // activity");
         this.activity = binding.getActivity();
         BluetoothManager bluetoothManager = (BluetoothManager) activity.getSystemService(Context.BLUETOOTH_SERVICE);
         assert bluetoothManager != null;
@@ -389,7 +406,8 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                 (requestCode, resultCode, data) -> {
                     switch (requestCode) {
                         case REQUEST_ENABLE_BLUETOOTH:
-                            // @TODO - used underlying value of `Activity.RESULT_CANCELED` since we tend to use `androidx` in which I were not able to find the constant.
+                            // @TODO - used underlying value of `Activity.RESULT_CANCELED` since we tend to
+                            // use `androidx` in which I were not able to find the constant.
                             if (pendingResultForActivityResult != null) {
                                 pendingResultForActivityResult.success(resultCode != 0);
                             }
@@ -402,18 +420,17 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                         default:
                             return false;
                     }
-                }
-        );
+                });
         binding.addRequestPermissionsResultListener(
                 (requestCode, permissions, grantResults) -> {
                     if (requestCode == REQUEST_COARSE_LOCATION_PERMISSIONS) {
-                        pendingPermissionsEnsureCallbacks.onResult(grantResults[0] == PackageManager.PERMISSION_GRANTED);
+                        pendingPermissionsEnsureCallbacks
+                                .onResult(grantResults[0] == PackageManager.PERMISSION_GRANTED);
                         pendingPermissionsEnsureCallbacks = null;
                         return true;
                     }
                     return false;
-                }
-        );
+                });
         activity = binding.getActivity();
         activeContext = binding.getActivity().getApplicationContext();
 
@@ -429,11 +446,9 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
 
     }
 
-
     public void onDetachedFromActivity() {
 
     }
-
 
     private interface EnsurePermissionsCallback {
         void onResult(boolean granted);
@@ -442,15 +457,13 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
     EnsurePermissionsCallback pendingPermissionsEnsureCallbacks = null;
 
     private void ensurePermissions(EnsurePermissionsCallback callbacks) {
-        if (
-                ContextCompat.checkSelfPermission(activity,
-                        Manifest.permission.ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED
-                        || ContextCompat.checkSelfPermission(activity,
-                        Manifest.permission.ACCESS_FINE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(activity,
+                Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(activity,
+                        Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(activity,
-                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                    new String[] { Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION },
                     REQUEST_COARSE_LOCATION_PERMISSIONS);
 
             pendingPermissionsEnsureCallbacks = callbacks;
@@ -458,7 +471,6 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
             callbacks.onResult(true);
         }
     }
-
 
     /// Helper function to get string out of exception
     static private String exceptionToString(Exception ex) {
@@ -478,7 +490,6 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
             return false;
         }
     }
-
 
     /// Helper wrapper class for `BluetoothConnection`
     private class BluetoothConnectionWrapper extends BluetoothConnection {
@@ -548,7 +559,6 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
     private class FlutterBluetoothSerialMethodCallHandler implements MethodCallHandler {
         /// Provides access to the plugin methods
 
-
         @Override
         public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
             BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -562,8 +572,7 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                 return;
             }
 
-            methodCallDispatching:
-            switch (call.method) {
+            methodCallDispatching: switch (call.method) {
                 ////////////////////////////////////////
                 /* Adapter settings and general */
                 case "isAvailable":
@@ -576,7 +585,8 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                     break;
 
                 case "openSettings":
-                    ContextCompat.startActivity(activity, new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS), null);
+                    ContextCompat.startActivity(activity,
+                            new Intent(android.provider.Settings.ACTION_BLUETOOTH_SETTINGS), null);
                     result.success(null);
                     break;
 
@@ -621,8 +631,10 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                         do {
                             Log.d(TAG, "Trying to obtain address using Settings Secure bank");
                             try {
-                                // Requires `LOCAL_MAC_ADDRESS` which could be unavailable for third party applications...
-                                String value = android.provider.Settings.Secure.getString(activeContext.getContentResolver(), "bluetooth_address");
+                                // Requires `LOCAL_MAC_ADDRESS` which could be unavailable for third party
+                                // applications...
+                                String value = android.provider.Settings.Secure
+                                        .getString(activeContext.getContentResolver(), "bluetooth_address");
                                 if (value == null) {
                                     throw new NullPointerException("null returned, might be no permissions problem");
                                 }
@@ -631,7 +643,8 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                             } catch (Exception ex) {
                                 // Ignoring failure (since it isn't critical API for most applications)
                                 Log.d(TAG, "Obtaining address using Settings Secure bank failed");
-                                //result.error("hidden_address", "obtaining address using Settings Secure bank failed", exceptionToString(ex));
+                                // result.error("hidden_address", "obtaining address using Settings Secure bank
+                                // failed", exceptionToString(ex));
                             }
 
                             Log.d(TAG, "Trying to obtain address using reflection against internal Android code");
@@ -660,13 +673,17 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                             } catch (Exception ex) {
                                 // Ignoring failure (since it isn't critical API for most applications)
                                 Log.d(TAG, "Obtaining address using reflection against internal Android code failed");
-                                //result.error("hidden_address", "obtaining address using reflection against internal Android code failed", exceptionToString(ex));
+                                // result.error("hidden_address", "obtaining address using reflection against
+                                // internal Android code failed", exceptionToString(ex));
                             }
 
-                            Log.d(TAG, "Trying to look up address by network interfaces - might be invalid on some devices");
+                            Log.d(TAG,
+                                    "Trying to look up address by network interfaces - might be invalid on some devices");
                             try {
-                                // This method might return invalid MAC address (since Bluetooth might use other address than WiFi).
-                                // @TODO . further testing: 1) check is while open connection, 2) check other devices
+                                // This method might return invalid MAC address (since Bluetooth might use other
+                                // address than WiFi).
+                                // @TODO . further testing: 1) check is while open connection, 2) check other
+                                // devices
                                 Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
                                 String value = null;
                                 while (interfaces.hasMoreElements()) {
@@ -685,10 +702,10 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                                         }
                                         addressBuilder.setLength(17);
                                         value = addressBuilder.toString();
-                                        //     Log.v(TAG, "-> '" + name + "' : " + value);
+                                        // Log.v(TAG, "-> '" + name + "' : " + value);
                                         // }
                                         // else {
-                                        //    Log.v(TAG, "-> '" + name + "' : <no hardware address>");
+                                        // Log.v(TAG, "-> '" + name + "' : <no hardware address>");
                                     }
                                 }
                                 if (value == null) {
@@ -698,10 +715,10 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                             } catch (Exception ex) {
                                 // Ignoring failure (since it isn't critical API for most applications)
                                 Log.w(TAG, "Looking for address by network interfaces failed");
-                                //result.error("hidden_address", "looking for address by network interfaces failed", exceptionToString(ex));
+                                // result.error("hidden_address", "looking for address by network interfaces
+                                // failed", exceptionToString(ex));
                             }
-                        }
-                        while (false);
+                        } while (false);
                     }
                     result.success(address);
                     break;
@@ -744,7 +761,8 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                             throw new ClassCastException();
                         }
                     } catch (ClassCastException ex) {
-                        result.error("invalid_argument", "'address' argument is required to be string containing remote MAC address", null);
+                        result.error("invalid_argument",
+                                "'address' argument is required to be string containing remote MAC address", null);
                         break;
                     }
 
@@ -766,7 +784,8 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                             throw new ClassCastException();
                         }
                     } catch (ClassCastException ex) {
-                        result.error("invalid_argument", "'address' argument is required to be string containing remote MAC address", null);
+                        result.error("invalid_argument",
+                                "'address' argument is required to be string containing remote MAC address", null);
                         break;
                     }
 
@@ -807,21 +826,32 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                             throw new ClassCastException();
                         }
                     } catch (ClassCastException ex) {
-                        result.error("invalid_argument", "'address' argument is required to be string containing remote MAC address", null);
+                        result.error("invalid_argument",
+                                "'address' argument is required to be string containing remote MAC address", null);
                         break;
                     }
 
+                    // Cancel ongoing bonding process if exists
                     if (bondStateBroadcastReceiver != null) {
-                        activeContext.unregisterReceiver(bondStateBroadcastReceiver);
-                        // result.error("bond_error", "another bonding process is ongoing from local device", null);
-                        break;
+                        try {
+                            activeContext.unregisterReceiver(bondStateBroadcastReceiver);
+                        } catch (IllegalArgumentException e) {
+                            // Receiver not registered, ignore
+                        }
+                        bondStateBroadcastReceiver = null;
                     }
 
                     BluetoothDevice device = bluetoothAdapter.getRemoteDevice(address);
                     switch (device.getBondState()) {
                         case BluetoothDevice.BOND_BONDING:
-                            result.error("bond_error", "device already bonding", null);
-                            break methodCallDispatching;
+                            try {
+                                Method method = BluetoothDevice.class.getMethod("cancelBondProcess");
+                                method.invoke(device);
+                            } catch (Exception e) {
+                                result.error("bond_error", "failed to cancel ongoing bonding process", null);
+                                break;
+                            }
+
                         case BluetoothDevice.BOND_BONDED:
                             result.error("bond_error", "device already bonded", null);
                             break methodCallDispatching;
@@ -836,13 +866,15 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                             // @TODO . BluetoothDevice.ACTION_PAIRING_CANCEL
                             // Ignore.
                             if (Objects.equals(intent.getAction(), BluetoothDevice.ACTION_BOND_STATE_CHANGED)) {
-                                final BluetoothDevice someDevice = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                                final BluetoothDevice someDevice = intent
+                                        .getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
                                 assert someDevice != null;
                                 if (!someDevice.equals(device)) {
                                     return;
                                 }
 
-                                final int newBondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE, BluetoothDevice.ERROR);
+                                final int newBondState = intent.getIntExtra(BluetoothDevice.EXTRA_BOND_STATE,
+                                        BluetoothDevice.ERROR);
                                 switch (newBondState) {
                                     case BluetoothDevice.BOND_BONDING:
                                         // Wait for true bond result :F
@@ -864,7 +896,7 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                     };
 
                     final IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-                    //filter.setPriority(pairingRequestReceiverPriority + 1);
+                    // filter.setPriority(pairingRequestReceiverPriority + 1);
                     activeContext.registerReceiver(bondStateBroadcastReceiver, filter);
 
                     if (!device.createBond()) {
@@ -882,7 +914,7 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
 
                     FlutterBlueSerialPlugin.this.isPairingRequestHandlerSet = true;
                     final IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_PAIRING_REQUEST);
-                    //filter.setPriority(pairingRequestReceiverPriority);
+                    // filter.setPriority(pairingRequestReceiverPriority);
                     activeContext.registerReceiver(pairingRequestReceiver, filter);
                     break;
 
@@ -899,7 +931,8 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                 case "getBondedDevices":
                     ensurePermissions(granted -> {
                         if (!granted) {
-                            result.error("no_permissions", "discovering other devices requires location access permission", null);
+                            result.error("no_permissions",
+                                    "discovering other devices requires location access permission", null);
                             return;
                         }
 
@@ -925,7 +958,8 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                 case "startDiscovery":
                     ensurePermissions(granted -> {
                         if (!granted) {
-                            result.error("no_permissions", "discovering other devices requires location access permission", null);
+                            result.error("no_permissions",
+                                    "discovering other devices requires location access permission", null);
                             return;
                         }
 
@@ -960,7 +994,8 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                     break;
 
                 case "isDiscoverable":
-                    result.success(bluetoothAdapter.getScanMode() == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
+                    result.success(
+                            bluetoothAdapter.getScanMode() == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
                     break;
 
                 case "requestDiscoverable": {
@@ -996,7 +1031,8 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                             throw new ClassCastException();
                         }
                     } catch (ClassCastException ex) {
-                        result.error("invalid_argument", "'address' argument is required to be string containing remote MAC address", null);
+                        result.error("invalid_argument",
+                                "'address' argument is required to be string containing remote MAC address", null);
                         break;
                     }
 
@@ -1011,7 +1047,8 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                             connection.connect(address);
                             activity.runOnUiThread(() -> result.success(id));
                         } catch (Exception ex) {
-                            activity.runOnUiThread(() -> result.error("connect_error", ex.getMessage(), exceptionToString(ex)));
+                            activity.runOnUiThread(
+                                    () -> result.error("connect_error", ex.getMessage(), exceptionToString(ex)));
                             connections.remove(id);
                         }
                     });
@@ -1028,7 +1065,8 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                     try {
                         id = call.argument("id");
                     } catch (ClassCastException ex) {
-                        result.error("invalid_argument", "'id' argument is required to be integer id of connection", null);
+                        result.error("invalid_argument", "'id' argument is required to be integer id of connection",
+                                null);
                         break;
                     }
 
@@ -1046,7 +1084,8 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                                 connection.write(string.getBytes());
                                 activity.runOnUiThread(() -> result.success(null));
                             } catch (Exception ex) {
-                                activity.runOnUiThread(() -> result.error("write_error", ex.getMessage(), exceptionToString(ex)));
+                                activity.runOnUiThread(
+                                        () -> result.error("write_error", ex.getMessage(), exceptionToString(ex)));
                             }
                         });
                     } else if (call.hasArgument("bytes")) {
@@ -1056,7 +1095,8 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
                                 connection.write(bytes);
                                 activity.runOnUiThread(() -> result.success(null));
                             } catch (Exception ex) {
-                                activity.runOnUiThread(() -> result.error("write_error", ex.getMessage(), exceptionToString(ex)));
+                                activity.runOnUiThread(
+                                        () -> result.error("write_error", ex.getMessage(), exceptionToString(ex)));
                             }
                         });
                     } else {
@@ -1072,4 +1112,3 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
         }
     }
 }
-
