@@ -537,6 +537,7 @@ public class FlutterBlueSerialPlugin implements FlutterPlugin, ActivityAware {
             activity.runOnUiThread(() -> {
                 if (readSink != null) {
                     readSink.success(buffer);
+                    readSink = null;
                 }
             });
         }

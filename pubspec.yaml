@@ -1,8 +1,8 @@
 name: flutter_blue_serial
 description: A new Flutter project.
-version: 0.0.5
+version: 0.0.6
 
-homepage:
+homepage: 
 
 environment:
   sdk: '>=3.1.0 <4.0.0'
