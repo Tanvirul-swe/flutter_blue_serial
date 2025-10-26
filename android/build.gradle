@@ -22,7 +22,7 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 33
+    compileSdkVersion 35
 
     if (project.android.hasProperty("namespace")) {
         namespace 'com.example.flutter_blue_serial'
@@ -58,3 +58,4 @@ android {
         }
     }
 }
+
